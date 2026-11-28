@@ -403,6 +403,9 @@ textarea.f-in{min-height:96px;resize:vertical;}
   color:var(--muted);font-size:13px;transition:all .18s;
 }
 .add-stage:active{border-color:rgba(124,92,255,.5);color:var(--text);}
+.st-kids{margin:8px 0 2px 13px;padding-left:11px;border-left:1px solid rgba(255,255,255,.10);}
+.st-kids .stage{margin-top:8px;}
+.st-kids .st-name{font-size:13px;}
 
 /* ===== 成就 ===== */
 .ledger{padding:16px 15px;border-radius:var(--r);background:var(--glass);border:1px solid var(--stroke);}
@@ -1257,6 +1260,31 @@ function gStats(g){
   var ts=state.tasks.filter(function(t){ return t.g===g.id; });
   return { n:ts.length, d:ts.filter(function(t){ return t.done; }).length };
 }
+/* ----- 阶段树：parent 为空即顶层，旧数据无 parent 自动归顶层 ----- */
+function childStages(g,pid){
+  var p=pid||null;
+  return g.stages.filter(function(s){ return (s.parent||null)===p; });
+}
+function subtreeIds(g,sid){
+  var out=[sid], seen={}, queue=[sid];
+  seen[sid]=1;
+  while(queue.length){
+    var cur=queue.shift();
+    g.stages.forEach(function(s){
+      if((s.parent||null)===cur && !seen[s.id]){ seen[s.id]=1; out.push(s.id); queue.push(s.id); }
+    });
+  }
+  return out;
+}
+function subtreeTasks(g,sid){
+  var ids=subtreeIds(g,sid), map={};
+  ids.forEach(function(i){ map[i]=1; });
+  return state.tasks.filter(function(t){ return t.g===g.id && map[t.stage]; });
+}
+function stageTree(g,pid,depth){
+  if(depth>12) return '';
+  return childStages(g,pid).map(function(st){ return stageBlock(g,st,depth); }).join('');
+}
 function ptRow(t){
   var when=t.done?('已完成 · '+(t.doneDate||'')):(t.planDate?dayLabel(t.planDate)+' · '+t.planDate:'未安排');
   return '<div class="pt">' +
@@ -1267,25 +1295,36 @@ function ptRow(t){
     '<button class="pt-x'+(pendingDel==='pt:'+t.id?' armed':'')+'" data-act="del-pt" data-id="'+t.id+'" aria-label="删掉">×</button>' +
     '<div class="pt-date">'+esc(when)+'</div></div>';
 }
-function stageBlock(g,st){
-  var ts=stageTasks(g.id,st.id);
+function stageBlock(g,st,depth){
+  depth=depth||0;
+  var ts=subtreeTasks(g,st.id);
   var d=ts.filter(function(t){ return t.done; }).length;
   var n=ts.length, pct=n?Math.round(d/n*100):0;
+  var direct=stageTasks(g.id,st.id);
   var isOpen=openStage===st.id, allDone=n>0&&d===n;
   var cls='stage'+(isOpen?' open':'')+(allDone?' all':'');
   var inner='';
   if(isOpen){
-    var rows=ts.length ? ts.map(ptRow).join('')
-      : '<div class="st-empty">这个阶段还是空的。先加一件今天能做完的小事。</div>';
+    var rows=direct.length ? direct.map(ptRow).join('')
+      : '<div class="st-empty">这个阶段还是空的。加一件小事，或再分一个子阶段。</div>';
     var add=openAdd==='pt:'+st.id
       ? '<div class="st-form"><input class="st-in" id="ptName" placeholder="例如：过完第三章" enterkeyhint="done">' +
           '<button class="st-ok" data-act="add-pt" data-sid="'+st.id+'" data-gid="'+g.id+'">加</button></div>'
       : '<button class="st-add" data-act="open-pt" data-sid="'+st.id+'" data-gid="'+g.id+'"><b>＋</b>加一件</button>';
-    inner='<div class="st-inner">'+rows+add+
+    var sub=openAdd==='substage:'+st.id
+      ? '<div class="st-form"><input class="st-in" id="subName" placeholder="子阶段名，例如：第一轮 · 过课本" enterkeyhint="done">' +
+          '<button class="st-ok" data-act="add-sub-stage" data-sid="'+st.id+'" data-gid="'+g.id+'">加</button></div>'
+      : '<button class="st-add" data-act="open-sub-form" data-sid="'+st.id+'" data-gid="'+g.id+'"><b>＋</b>分子阶段</button>';
+    inner='<div class="st-inner">'+rows+add+sub+
       '<button class="st-add" style="color:#8C6A63" data-act="del-stage" data-sid="'+st.id+'" data-gid="'+g.id+'">'+
-        (pendingDel==='s:'+st.id?'再点一次，这个阶段和里面的东西一起删':'删掉这个阶段')+'</button>' +
+        (pendingDel==='s:'+st.id?'再点一次，这个分支和里面的东西一起删':'删掉这个阶段')+'</button>' +
     '</div>';
   }
+  var kids=childStages(g,st.id);
+  var kidsHtml=kids.length?'<div class="st-kids">'+stageTree(g,st.id,depth+1)+'</div>':'';
+  var stn=n?(d+' / '+n+' 件'):'';
+  if(kids.length) stn+=(stn?' · ':'')+kids.length+' 个子阶段';
+  if(!stn) stn=isOpen?'还没加东西':'点开加几件';
   return '<div class="'+cls+'">' +
     (openAdd==='rename:'+st.id
       ? '<div class="st-form" style="padding:10px 13px 0"><input class="st-in" id="renameStage" value="'+esc(st.name)+'" enterkeyhint="done" data-sid="'+st.id+'" data-gid="'+g.id+'">'+
@@ -1293,9 +1332,9 @@ function stageBlock(g,st){
         '<button class="sheet-x" style="min-height:32px;margin:0" data-act="cancel-rename">取消改名</button>'
       : '<button class="st-head" data-act="open-stage" data-id="'+st.id+'">' +
       '<div class="st-dot"></div><div class="st-body"><div class="st-name">'+esc(st.name)+'</div>' +
-      '<div class="st-n">'+(n ? d+' / '+n+' 件':(isOpen?'还没加东西':'点开加几件'))+'</div></div></button>'+
+      '<div class="st-n">'+stn+'</div></div></button>'+
       '<button class="st-rename" data-act="rename-stage" data-sid="'+st.id+'" data-gid="'+g.id+'">改名</button>') +
-    '<div class="st-bar"><i style="width:'+pct+'%"></i></div>' + inner + '</div>';
+    '<div class="st-bar"><i style="width:'+pct+'%"></i></div>' + inner + kidsHtml + '</div>';
 }
 
 function renderGoals(){
@@ -1321,8 +1360,8 @@ function renderGoals(){
     if(g.reward) meta+='<span class="rw">奖励 · '+esc(g.reward)+'</span>';
 
     var stages=g.stages.length
-      ? g.stages.map(function(st){ return stageBlock(g,st); }).join('')
-      : '<div class="st-empty" style="padding:10px 2px 0">还没分阶段。分成两三个阶段，每个阶段放几件做得完的事。</div>';
+      ? stageTree(g,null,0)
+      : '<div class="st-empty" style="padding:10px 2px 0">还没分阶段。分成两三个阶段，每个阶段放几件做得完的事，需要的话再往下分子阶段。</div>';
 
     var addStage = openAdd==='stage:'+g.id
       ? '<div class="st-form" style="margin-top:11px"><input class="st-in" id="stName" placeholder="例如：第一阶段 · 打基础" enterkeyhint="done">' +
@@ -1794,9 +1833,24 @@ document.addEventListener('click',function(e){
       if(!sgoal) return;
       if(!sname){ toast('给阶段起个名字'); return; }
       var nsid=uid('s');
-      sgoal.stages.push({ id:nsid, name:sname });
+      sgoal.stages.push({ id:nsid, name:sname, parent:null });
       openAdd='pt:'+nsid; openStage=nsid; save(); render(); toast('阶段加上了，先加一件');
       var nin=$('ptName'); if(nin) nin.focus();
+      break;
+    case 'open-sub-form':
+      openStage=el.getAttribute('data-sid');
+      openAdd='substage:'+openStage; pendingDel=null; render();
+      var subin=$('subName'); if(subin) subin.focus();
+      break;
+    case 'add-sub-stage':
+      var pgoal=goalById(el.getAttribute('data-gid')), psid=el.getAttribute('data-sid');
+      var subname=val('subName');
+      if(!pgoal) return;
+      if(!subname){ toast('给子阶段起个名字'); return; }
+      var ssid=uid('s');
+      pgoal.stages.push({ id:ssid, name:subname, parent:psid });
+      openAdd='pt:'+ssid; openStage=ssid; save(); render(); toast('子阶段加上了，先加一件');
+      var subnin=$('ptName'); if(subnin) subnin.focus();
       break;
     case 'toggle-pt':
       var pt=byId(id);
@@ -1805,8 +1859,8 @@ document.addEventListener('click',function(e){
         pt.done=!pt.done;
         if(pt.done){
           pt.doneDate=TODAY; historyDone(pt,TODAY);
-          var pg=goalById(pt.g), pst=pg?pg.stages.filter(function(s){return s.id===pt.stage;})[0]:null;
-          var ps=pst?stageTasks(pg.id,pst.id):[];
+          var pg=goalById(pt.g);
+          var ps=pg?subtreeTasks(pg,pt.stage):[];
           var msg='进度往前走了一格 · 安排到日程才计分';
           if(ps.length&&ps.every(function(x){return x.done;})) msg='这个阶段走完了 · 你完成的是一整段路';
           if(pg&&gStats(pg).n===gStats(pg).d&&gStats(pg).n>0) msg='目标已达成 · 这段长期投入有了结果';
@@ -1826,12 +1880,14 @@ document.addEventListener('click',function(e){
       break;
     case 'del-stage':
       var dsid=el.getAttribute('data-sid');
-      if(pendingDel!=='s:'+dsid){ pendingDel='s:'+dsid; render(); toast('再点一次，阶段和里面的任务一起删'); }
+      if(pendingDel!=='s:'+dsid){ pendingDel='s:'+dsid; render(); toast('再点一次，这个分支和里面的任务一起删'); }
       else {
         var dgoal=goalById(el.getAttribute('data-gid'));
-        if(dgoal) dgoal.stages=dgoal.stages.filter(function(x){ return x.id!==dsid; });
-        state.tasks=state.tasks.filter(function(x){ return x.stage!==dsid; });
-        if(openStage===dsid) openStage=null;
+        var delIds=dgoal?subtreeIds(dgoal,dsid):[dsid], delMap={};
+        delIds.forEach(function(i){ delMap[i]=1; });
+        if(dgoal) dgoal.stages=dgoal.stages.filter(function(x){ return !delMap[x.id]; });
+        state.tasks=state.tasks.filter(function(x){ return !delMap[x.stage]; });
+        if(delMap[openStage]) openStage=null;
         pendingDel=null; save(); render(); toast('阶段已删除');
       }
       break;
@@ -1873,6 +1929,7 @@ document.addEventListener('keydown',function(e){
   if(kid==='goalText'){ decompose(); return; }
   if(kid==='ptName'){ e.preventDefault(); var b1=document.querySelector('[data-act="add-pt"]'); if(b1) b1.click(); return; }
   if(kid==='stName'){ e.preventDefault(); var b2=document.querySelector('[data-act="add-stage"]'); if(b2) b2.click(); return; }
+  if(kid==='subName'){ e.preventDefault(); var b5=document.querySelector('[data-act="add-sub-stage"]'); if(b5) b5.click(); return; }
   if(kid==='renameStage'){ e.preventDefault(); var b3=document.querySelector('[data-act="save-stage-name"]'); if(b3) b3.click(); return; }
   if(kid==='renameGoal'){ e.preventDefault(); var b4=document.querySelector('[data-act="save-goal-name"]'); if(b4) b4.click(); return; }
 });
