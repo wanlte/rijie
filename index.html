@@ -1023,6 +1023,18 @@ var CHEERS=[
 ];
 function openModal(html){ $('modalHost').innerHTML='<div class="mask" data-act="close-modal"><div class="sheet" data-act="noop">'+html+'</div></div>'; }
 function closeModal(){ modalId=null; $('modalHost').innerHTML=''; }
+function openEdit(id){
+  var t=byId(id); if(!t) return;
+  modalId=id;
+  openModal('<div class="sheet-t">编辑任务</div>'+
+    '<div class="sheet-s">改名字、时长、起手一步或安排日期。已完成的进度和积分都不受影响。</div>'+
+    '<label class="f-label" for="editTitle">任务名</label><input class="f-in" id="editTitle" value="'+esc(t.title)+'">'+
+    '<div class="f-row"><div class="f-col"><label class="f-label" for="editMins">预计分钟</label><input class="f-in" id="editMins" type="number" min="5" max="600" value="'+t.mins+'"></div>'+
+    '<div class="f-col"><label class="f-label" for="editDate">安排日期</label><input class="f-in" id="editDate" type="date" value="'+(t.planDate||'')+'"></div></div>'+
+    '<label class="f-label" for="editFirst">起手第一步</label><textarea class="f-in" id="editFirst">'+esc(t.first)+'</textarea>'+
+    '<button class="btn" style="width:100%" data-act="save-edit" data-id="'+id+'">保存修改</button>'+
+    (t.planDate?'<button class="sheet-x" data-act="set-plan" data-id="'+id+'" data-date="">移出日程，任务保留在阶段里</button>':''));
+}
 function openPlan(id){
   var t=byId(id); if(!t) return;
   modalId=id;
@@ -1088,6 +1100,7 @@ function renderToday(){
         '<div class="t-first"><b>起手</b><span>'+esc(t.first)+'</span></div>' + st +
         '<div class="t-foot">' +
           '<span>'+t.mins+' 分</span><span class="dot"></span><span>'+esc(goalName(t.g))+'</span>' +
+          '<button class="plan" data-act="edit-pt" data-id="'+t.id+'">编辑</button>' +
           '<button class="plan" data-act="open-plan" data-id="'+t.id+'">'+(t.done?'已入账':'改日期')+'</button>' +
           (!t.done?'<button data-act="open-adjust" data-id="'+t.id+'">调整方案</button>':'')+
           '<button data-act="unslot" data-id="'+t.id+'">移出</button>' +
@@ -1244,6 +1257,7 @@ function ptRow(t){
     '<button class="pt-c'+(t.done?' on':'')+'" data-act="toggle-pt" data-id="'+t.id+'" aria-label="'+(t.done?'撤销':'勾掉')+'">✓</button>' +
     '<button class="pt-t'+(t.done?' on':'')+'" data-act="toggle-pt" data-id="'+t.id+'">'+esc(t.title)+'</button>' +
     '<button class="pt-put'+(t.planDate?' here':'')+'" data-act="open-plan" data-id="'+t.id+'">安排</button>' +
+    '<button class="pt-put" data-act="edit-pt" data-id="'+t.id+'">编辑</button>' +
     '<button class="pt-x'+(pendingDel==='pt:'+t.id?' armed':'')+'" data-act="del-pt" data-id="'+t.id+'" aria-label="删掉">×</button>' +
     '<div class="pt-date">'+esc(when)+'</div></div>';
 }
@@ -1300,8 +1314,13 @@ function renderGoals(){
       : '<button class="add-stage" data-act="open-stage-form" data-gid="'+g.id+'"><b>＋</b>加一个阶段</button>';
 
     return '<div class="goal">' +
-      '<div class="g-head"><h3 class="g-name">'+esc(g.name)+'</h3>' +
-        '<button class="x'+(pendingDel==='g:'+g.id?' armed':'')+'" data-act="del-goal" data-id="'+g.id+'" aria-label="删除目标">×</button></div>' +
+      (openAdd==='gname:'+g.id
+        ? '<div class="st-form" style="padding:0 0 4px"><input class="st-in" id="renameGoal" value="'+esc(g.name)+'" enterkeyhint="done" data-id="'+g.id+'">'+
+          '<button class="st-ok" data-act="save-goal-name" data-id="'+g.id+'">存</button></div>'+
+          '<button class="sheet-x" style="min-height:30px;margin:0 0 6px" data-act="cancel-goal-rename">取消改名</button>'
+        : '<div class="g-head"><h3 class="g-name">'+esc(g.name)+'</h3>' +
+          '<button class="st-rename" style="position:static" data-act="rename-goal" data-id="'+g.id+'">改名</button>' +
+          '<button class="x'+(pendingDel==='g:'+g.id?' armed':'')+'" data-act="del-goal" data-id="'+g.id+'" aria-label="删除目标">×</button></div>') +
       (meta?'<div class="g-meta">'+meta+'</div>':'') +
       '<div class="g-track"><div class="g-fill" style="width:'+(tot.n?Math.round(tot.d/tot.n*100):0)+'%"></div></div>' +
       '<div class="g-pct">'+tot.d+' / '+tot.n+' 件'+
@@ -1567,6 +1586,33 @@ document.addEventListener('click',function(e){
     case 'view-date': viewDate=el.getAttribute('data-date'); pendingDel=null; render(); break;
     case 'next-cheer': cheerIndex++; render(); break;
     case 'badge-range': badgeRange=el.getAttribute('data-range'); render(); break;
+    case 'edit-pt': openEdit(id); break;
+    case 'save-edit':
+      var et=byId(id); if(!et) return;
+      var etitle=val('editTitle'), emins=parseInt(val('editMins'),10), edate=val('editDate');
+      if(!etitle){ toast('任务名不能为空'); return; }
+      if(!(emins>=5&&emins<=600)){ toast('预计时间填 5 到 600 分钟'); return; }
+      var eold=et.planDate;
+      et.title=etitle; et.mins=emins; et.first=val('editFirst')||'先做最小的一步';
+      et.planDate=edate; et.slot=edate===TODAY?'today':'pool';
+      if(eold!==edate){
+        state.history.push({id:uid('h'),type:'adjust',taskId:id,title:etitle,date:localStamp(),from:eold,to:edate});
+        syncDayStats(eold); syncDayStats(edate);
+      }
+      state.history.forEach(function(h){ if(h.taskId===id) h.title=etitle; });
+      save(); closeModal(); render(); toast('已保存修改，进度和积分没变');
+      break;
+    case 'rename-goal':
+      openAdd='gname:'+id; pendingDel=null; render();
+      var gni=$('renameGoal'); if(gni){ gni.focus(); gni.select(); }
+      break;
+    case 'save-goal-name':
+      var gname=val('renameGoal'), gg=goalById(id);
+      if(!gname){ toast('目标名不能为空'); return; }
+      if(gg) gg.name=gname;
+      openAdd=null; save(); render(); toast('目标名字改好了，任务都在');
+      break;
+    case 'cancel-goal-rename': openAdd=null; render(); break;
     case 'open-plan': openPlan(id); break;
     case 'set-plan': setPlan(id,el.getAttribute('data-date')); break;
     case 'set-custom-plan': setPlan(id,val('planDate')); break;
@@ -1789,6 +1835,7 @@ document.addEventListener('keydown',function(e){
   if(kid==='ptName'){ e.preventDefault(); var b1=document.querySelector('[data-act="add-pt"]'); if(b1) b1.click(); return; }
   if(kid==='stName'){ e.preventDefault(); var b2=document.querySelector('[data-act="add-stage"]'); if(b2) b2.click(); return; }
   if(kid==='renameStage'){ e.preventDefault(); var b3=document.querySelector('[data-act="save-stage-name"]'); if(b3) b3.click(); return; }
+  if(kid==='renameGoal'){ e.preventDefault(); var b4=document.querySelector('[data-act="save-goal-name"]'); if(b4) b4.click(); return; }
 });
 document.addEventListener('change',function(e){
   if(e.target && e.target.id==='fileIn' && e.target.files[0]) importData(e.target.files[0]);
