@@ -1849,8 +1849,9 @@ document.addEventListener('click',function(e){
       if(!subname){ toast('给子阶段起个名字'); return; }
       var ssid=uid('s');
       pgoal.stages.push({ id:ssid, name:subname, parent:psid });
-      openAdd='pt:'+ssid; openStage=ssid; save(); render(); toast('子阶段加上了，先加一件');
-      var subnin=$('ptName'); if(subnin) subnin.focus();
+      openStage=psid; openAdd=null; save(); render(); toast('子阶段加上了，点它就能加任务');
+      var newHead=document.querySelector('[data-act="open-stage"][data-id="'+ssid+'"]');
+      if(newHead&&newHead.scrollIntoView) newHead.scrollIntoView({block:'nearest'});
       break;
     case 'toggle-pt':
       var pt=byId(id);
