@@ -327,7 +327,7 @@ textarea.f-in{min-height:96px;resize:vertical;}
 .x.armed{color:#E0705E;background:rgba(224,112,94,.12);}
 
 /* ===== 目标：阶段 ===== */
-.stage{margin-top:10px;border:1px solid var(--stroke);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.02);}
+.stage{position:relative;margin-top:10px;border:1px solid var(--stroke);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.02);}
 .stage.open{border-color:var(--stroke-2);background:rgba(255,255,255,.04);}
 .st-head{
   display:flex;align-items:center;gap:10px;width:100%;text-align:left;
@@ -525,6 +525,56 @@ textarea.f-in{min-height:96px;resize:vertical;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 @keyframes sheetIn{from{transform:translateY(30px);opacity:.6;}to{transform:none;opacity:1;}}
 
+/* ===== v7：日期、统计与心得 ===== */
+.day-scroll{display:flex;gap:8px;overflow-x:auto;padding:4px 1px 12px;margin:0 -1px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.day-scroll::-webkit-scrollbar{display:none;}
+.day-btn{flex:0 0 49px;min-height:66px;padding:7px 3px;border:1px solid var(--stroke);border-radius:12px;background:var(--glass);color:var(--dim);text-align:center;}
+.day-btn b{display:block;font-family:var(--mono);font-size:17px;font-weight:500;color:var(--muted);line-height:1.4;}
+.day-btn span{font-size:10px;}
+.day-btn.on{border-color:rgba(34,211,238,.55);background:rgba(34,211,238,.08);}
+.day-btn.on b,.day-btn.on span{color:var(--cyan);}
+.day-btn.past{opacity:.58;}
+.day-btn.has{box-shadow:inset 0 -2px 0 rgba(124,92,255,.55);}
+.soft-note{margin:12px 0;padding:13px 14px;border:1px solid rgba(34,211,238,.16);border-radius:13px;background:rgba(34,211,238,.045);font-size:12.5px;line-height:1.75;color:var(--muted);}
+.soft-note b{display:block;color:var(--text);font-size:13.5px;font-weight:600;margin-bottom:3px;}
+.encourage{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 0;padding:12px 14px;border-radius:13px;background:var(--glass);border:1px solid var(--stroke);}
+.encourage p{margin:0;font-size:12.5px;line-height:1.7;color:var(--muted);}
+.encourage button{flex:0 0 auto;min-height:34px;color:var(--cyan);font-size:11px;}
+.range-tabs{display:flex;gap:7px;margin:0 0 14px;}
+.range-tabs button{flex:1;min-height:38px;border:1px solid var(--stroke);border-radius:10px;background:var(--glass);color:var(--muted);font-size:12px;}
+.range-tabs button.on{color:var(--cyan);border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.07);}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:12px 0;}
+.stat{padding:13px;border:1px solid var(--stroke);border-radius:12px;background:var(--glass);}
+.stat b{display:block;font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);}
+.stat span{font-size:11px;color:var(--dim);}
+.period-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.period-cell{min-height:67px;padding:9px 5px;border:1px solid var(--stroke);border-radius:10px;background:rgba(255,255,255,.025);text-align:center;}
+.period-cell.on{border-color:rgba(124,92,255,.38);background:rgba(124,92,255,.08);}
+.period-cell b{display:block;font-family:var(--mono);font-size:16px;color:var(--text);font-weight:500;}
+.period-cell span{font-size:10px;color:var(--dim);}
+.journal-card{margin-bottom:10px;padding:13px 14px;border:1px solid var(--stroke);border-radius:13px;background:var(--glass);}
+.journal-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.journal-date{font-family:var(--mono);font-size:11px;color:var(--cyan);}
+.journal-mood{font-size:11px;color:var(--muted);}
+.journal-text{margin:8px 0 0;font-size:13px;line-height:1.75;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;}
+.journal-acts{display:flex;gap:14px;margin-top:7px;}
+.journal-acts button{min-height:34px;font-size:11px;color:var(--dim);}
+.journal-acts .danger{color:#B7837B;}
+.mood-row{display:flex;gap:7px;margin:0 0 13px;}
+.mood-row button{flex:1;min-height:40px;border:1px solid var(--stroke);border-radius:10px;background:var(--glass);font-size:12px;color:var(--muted);}
+.mood-row button.on{color:var(--cyan);border-color:rgba(34,211,238,.4);}
+.plan-current{margin:10px 0;font-size:12px;color:var(--cyan);}
+.adjust-preview{margin:10px 0 14px;padding:12px;border-radius:11px;background:rgba(255,255,255,.035);font-size:12.5px;line-height:1.75;color:var(--muted);}
+.st-rename{position:absolute;right:13px;top:9px;min-height:32px;padding:0 4px;color:var(--dim);font-size:10px;z-index:2;}
+.st-head{width:100%;padding-right:48px;}
+.st-head .st-arrow{display:none;}
+.pt{flex-wrap:wrap;gap:8px;}
+.pt-date{flex:0 0 100%;padding-left:32px;margin-top:-3px;font-family:var(--mono);font-size:9.5px;color:var(--dim);}
+.task.overdue{border-color:rgba(124,92,255,.20);}
+.task .t-foot button.plan{color:var(--cyan);}
+.toast{white-space:normal;width:max-content;text-align:center;}
+@media (max-width:360px){.day-btn{flex-basis:45px}.pt-put{padding:3px 5px}.stat b{font-size:20px}}
+
 /* ===== 平板 / 桌面 ===== */
 @media (min-width:768px){
   #view{padding:0 26px 140px;}
@@ -557,11 +607,12 @@ textarea.f-in{min-height:96px;resize:vertical;}
     </div>
   </header>
   <main id="view"></main>
+  <div id="modalHost"></div>
   <nav class="tabbar">
     <div class="tabbar-in" id="tabbar">
       <button class="tab on" data-act="goto" data-view="today">
         <svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h8M4 17h5"/><path d="M15.5 17.2l2.2 2.2L21.5 15"/></svg>
-        <span>今天</span>
+        <span>日程</span>
       </button>
       <button class="tab" data-act="goto" data-view="goals">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.3"/><circle cx="12" cy="12" r="2.4"/></svg>
@@ -593,12 +644,19 @@ textarea.f-in{min-height:96px;resize:vertical;}
 var LS='ruzhangben_v3', OLDS=['ruzhangben_v2','ruzhangben_v1'];
 var CAP=3, WD=['日','一','二','三','四','五','六'];
 var VIEW='today', selId=null, openForm=null, pendingDel=null, runGid=null,
-    openStage=null, openAdd=null;
+    openStage=null, openAdd=null, viewDate=null, badgeRange='28',
+    journalId=null, journalAll=false, modalId=null, cheerIndex=0;
 
 function pad(n){ return n<10 ? '0'+n : ''+n; }
 function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-function dOff(n){ var d=new Date(); d.setDate(d.getDate()+n); return iso(d); }
+function dOff(n){ var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+n); return iso(d); }
+function addDays(ds,n){ var d=new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return iso(d); }
+function localStamp(d){
+  d=d||new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+}
 var TODAY=dOff(0);
+viewDate=TODAY;
 function uid(p){ return p+Math.random().toString(36).slice(2,8); }
 function esc(s){
   return String(s==null?'':s).replace(/[&<>"']/g,function(c){
@@ -610,7 +668,8 @@ function val(id){ var e=$(id); return e ? e.value.trim() : ''; }
 
 /* ===================== 状态 ===================== */
 function blank(){
-  return { today:TODAY, points:0, checks:[], weekLog:{}, note:'', goals:[], tasks:[], lastRun:null };
+  return { today:TODAY, points:0, checks:[], weekLog:{}, note:'', goals:[], tasks:[],
+    lastRun:null, history:[], journal:[], startedAt:TODAY };
 }
 function fixState(s){
   if(!s || typeof s!=='object') return null;
@@ -622,6 +681,9 @@ function fixState(s){
   s.goals = Array.isArray(s.goals) ? s.goals : [];
   s.tasks = Array.isArray(s.tasks) ? s.tasks : [];
   s.lastRun = s.lastRun || null;
+  s.history = Array.isArray(s.history) ? s.history : [];
+  s.journal = Array.isArray(s.journal) ? s.journal : [];
+  s.startedAt = s.startedAt || (s.checks.slice().sort()[0]) || TODAY;
   s.goals.forEach(function(g){
     g.type = g.type || '';
     g.stages = Array.isArray(g.stages) ? g.stages : [];
@@ -632,6 +694,17 @@ function fixState(s){
     t.stage = t.stage || '';
     t.steps = Array.isArray(t.steps) ? t.steps : [];
     t.first = t.first || '先做最开头那一点';
+    t.mins = parseInt(t.mins,10)>0 ? parseInt(t.mins,10) : 30;
+    if(!t.planDate){
+      if(t.slot==='today') t.planDate=s.today;
+      else if(t.done) t.planDate=s.today;
+      else t.planDate='';
+    }
+    if(t.done && !t.doneDate) t.doneDate=t.planDate||s.today;
+    if(t.doneDate){
+      var old=s.history.filter(function(h){ return h.type==='done'&&h.taskId===t.id; })[0];
+      if(!old) s.history.push({id:uid('h'),type:'done',taskId:t.id,title:t.title||'',date:t.doneDate,mins:t.mins});
+    }
   });
   // 旧数据：目标下有任务但还没分阶段，自动归进「阶段 1」
   s.goals.forEach(function(g){
@@ -720,8 +793,9 @@ function schedulePush(){
 function applyRemote(d){
   if(!d || !Array.isArray(d.tasks) || !Array.isArray(d.goals)) return false;
   state=fixState(d);
+  rollDate();
   try{ localStorage.setItem(LS,JSON.stringify(state)); }catch(e){}
-  selId=null; openStage=null; openAdd=null; render();
+  selId=null; openStage=null; openAdd=null; closeModal(); render();
   return true;
 }
 function bootCloud(){
@@ -754,7 +828,7 @@ function openCloud(){
     (cloud?'<div class="io"><button class="btn ghost sm" data-act="cloud-push">上传本地</button>'+
       '<button class="btn ghost sm" data-act="cloud-pull">从云端拉</button></div>'+
       '<button class="sheet-x" data-act="cloud-off">断开云同步</button>':'')+
-    '<div class="cloud-note">anon key 是公开密钥，只存在你这台设备。真正的保护靠建表时那段 SQL 里的行级权限。</div>'+
+    '<div class="cloud-note">已内置本项目的公开 anon key，打开页面会自动连接。真正的保护靠建表时那段 SQL 里的行级权限；请勿换成 service_role 密钥。</div>'+
   '</div></div>';
 }
 
@@ -762,18 +836,51 @@ function openCloud(){
 function byId(id){ return state.tasks.filter(function(t){ return t.id===id; })[0]; }
 function goalById(id){ return state.goals.filter(function(g){ return g.id===id; })[0]; }
 function goalName(id){ var g=goalById(id); return g ? g.name : '未归类'; }
-function todayTasks(){ return state.tasks.filter(function(t){ return t.slot==='today'; }); }
-function poolTasks(){ return state.tasks.filter(function(t){ return t.slot==='pool'; }); }
-function doneCount(){ return todayTasks().filter(function(t){ return t.done; }).length; }
-function spentMins(){ return todayTasks().reduce(function(a,t){ return a+(t.done?t.mins:0); },0); }
-function totalMins(){ return todayTasks().reduce(function(a,t){ return a+t.mins; },0); }
+function dayTasks(ds){ return state.tasks.filter(function(t){ return t.planDate===ds; }); }
+function todayTasks(){ return dayTasks(TODAY); }
+function poolTasks(){ return state.tasks.filter(function(t){ return !t.planDate; }); }
+function doneCount(ds){ return dayTasks(ds||viewDate).filter(function(t){ return t.done; }).length; }
+function spentMins(ds){ return dayTasks(ds||viewDate).reduce(function(a,t){ return a+(t.done?t.mins:0); },0); }
+function totalMins(ds){ return dayTasks(ds||viewDate).reduce(function(a,t){ return a+t.mins; },0); }
 function fmtMins(m){
   if(m<60) return m+' 分钟';
   var h=Math.floor(m/60), r=m%60;
   return r ? h+' 小时 '+r+' 分' : h+' 小时';
 }
-function isFullDay(){ return todayTasks().length>=CAP && doneCount()>=CAP; }
+function isFullDay(){ return doneCount(TODAY)>=CAP; }
 function stepDone(t){ return t.steps.filter(function(s){ return s.done; }).length; }
+function dayLabel(ds){
+  if(ds===TODAY) return '今天';
+  if(ds===dOff(1)) return '明天';
+  if(ds===dOff(2)) return '后天';
+  var d=new Date(ds+'T12:00:00');
+  return (d.getMonth()+1)+'月'+d.getDate()+'日';
+}
+function syncDayStats(ds){
+  ds=ds||TODAY;
+  var ts=dayTasks(ds), done=ts.filter(function(t){ return t.done; }).length;
+  state.weekLog[ds]=done;
+  if(done>=CAP){ if(state.checks.indexOf(ds)<0) state.checks.push(ds); }
+  else state.checks=state.checks.filter(function(d){ return d!==ds; });
+  state.weekLog[ds]=done;
+}
+function historyDone(t,ds){
+  var h=state.history.filter(function(x){ return x.type==='done'&&x.taskId===t.id; })[0];
+  if(!h) state.history.push({id:uid('h'),type:'done',taskId:t.id,title:t.title,date:ds,mins:t.mins});
+}
+function historyUndone(t){
+  state.history=state.history.filter(function(h){ return !(h.type==='done'&&h.taskId===t.id); });
+}
+function longestStreak(){
+  var set={}; state.checks.forEach(function(d){ set[d]=1; });
+  var best=0, run=0, d=addDays(TODAY,-400);
+  for(var i=0;i<=400;i++){
+    if(set[d]){ run++; best=Math.max(best,run); } else run=0;
+    d=addDays(d,1);
+  }
+  return best;
+}
+function dayCount(ds){ return state.history.filter(function(h){ return h.type==='done'&&h.date===ds; }).length; }
 function ancestors(id,set){
   set=set||{};
   var t=byId(id); if(!t) return set;
@@ -799,11 +906,7 @@ function streak(){
   return n;
 }
 function addCheck(){ if(state.checks.indexOf(TODAY)<0) state.checks.push(TODAY); }
-function dropCheckIfEmpty(){
-  if(todayTasks().every(function(t){ return !t.done; })){
-    state.checks=state.checks.filter(function(d){ return d!==TODAY; });
-  }
-}
+function dropCheckIfEmpty(){ syncDayStats(TODAY); }
 function levelInfo(){
   var p=state.points;
   if(p<50) return {lv:1,name:'起步',next:50,pct:p/50*100};
@@ -899,13 +1002,77 @@ function emptyBox(icon,title,text,btn){
   '</div>';
 }
 
-/* ---------- 今天 ---------- */
+function dateStrip(){
+  var bt=state.today||TODAY;
+  var dates=[];
+  for(var i=-1;i<=14;i++){
+    var ds=addDays(bt,i), dd=new Date(ds+'T12:00:00'), n=dayTasks(ds).length;
+    dates.push('<button class="day-btn'+(ds===viewDate?' on':'')+(ds<TODAY?' past':'')+(n?' has':'')+'" data-act="view-date" data-date="'+ds+'">'+
+      '<b>'+dd.getDate()+'</b><span>'+(ds===TODAY?'今天':(i===0?'昨天':'周'+WD[dd.getDay()]))+'</span></button>');
+  }
+  return '<div class="day-scroll" id="dayScroll">'+dates.join('')+'</div>';
+}
+
+/* ---------- 支持性文案与弹层 ---------- */
+var CHEERS=[
+  '不用等状态完美，先选一件最小的。',
+  '你不需要把一天塞满，做好一件就值得记下来。',
+  '计划需要调整，不代表你不行。',
+  '只做眼前这一小步，剩下的之后再决定。',
+  '累了就把任务缩小一点，休息也是计划的一部分。'
+];
+function openModal(html){ $('modalHost').innerHTML='<div class="mask" data-act="close-modal"><div class="sheet" data-act="noop">'+html+'</div></div>'; }
+function closeModal(){ modalId=null; $('modalHost').innerHTML=''; }
+function openPlan(id){
+  var t=byId(id); if(!t) return;
+  modalId=id;
+  openModal('<div class="sheet-t">安排到哪天</div><div class="sheet-s">'+esc(t.title)+'</div>'+
+    '<div class="plan-current">当前：'+(t.planDate?dayLabel(t.planDate)+' · '+t.planDate:'未安排')+'</div>'+
+    '<button class="sheet-item" data-act="set-plan" data-id="'+id+'" data-date="'+TODAY+'">今天<span>'+dayTasks(TODAY).length+' 件</span></button>'+
+    '<button class="sheet-item" data-act="set-plan" data-id="'+id+'" data-date="'+dOff(1)+'">明天<span>'+dOff(1)+'</span></button>'+
+    '<button class="sheet-item" data-act="set-plan" data-id="'+id+'" data-date="'+dOff(2)+'">后天<span>'+dOff(2)+'</span></button>'+
+    '<label class="f-label" for="planDate">选一天</label><input class="f-in" id="planDate" type="date" value="'+(t.planDate||TODAY)+'">'+
+    '<button class="btn" style="width:100%" data-act="set-custom-plan" data-id="'+id+'">安排到这一天</button>'+
+    '<button class="sheet-x" data-act="set-plan" data-id="'+id+'" data-date="">移出日程，保留在阶段里</button>');
+}
+function setPlan(id,ds){
+  var t=byId(id); if(!t) return;
+  var old=t.planDate||'';
+  if(ds&&t.done){ toast('这件事已经入账了，不重复安排'); return; }
+  t.planDate=ds; t.slot=ds===TODAY?'today':'pool';
+  if(ds){
+    state.history.push({id:uid('h'),type:'adjust',taskId:id,title:t.title,date:localStamp(),from:old,to:ds});
+    toast('已安排到'+dayLabel(ds));
+  } else toast('已移出日程，任务还在');
+  syncDayStats(old); syncDayStats(ds);
+  save(); closeModal(); render();
+}
+function openAdjust(id){
+  var t=byId(id); if(!t) return;
+  modalId=id;
+  openModal('<div class="sheet-t">给计划松一松</div>'+
+    '<div class="sheet-s">没完成只是说明原计划不合适。你可以改日期，也可以把事情变小；积分和连击不会因为延期被扣掉。</div>'+
+    '<div class="adjust-preview">建议：先把「'+esc(t.title)+'」缩小成 15 分钟内能开始的一步。下面的内容都可以自己改。</div>'+
+    '<label class="f-label" for="adjTitle">任务名</label><input class="f-in" id="adjTitle" value="'+esc(t.title)+'">'+
+    '<div class="f-row"><div class="f-col"><label class="f-label" for="adjMins">预计分钟</label><input class="f-in" id="adjMins" type="number" min="5" max="600" value="'+t.mins+'"></div>'+
+    '<div class="f-col"><label class="f-label" for="adjDate">安排日期</label><input class="f-in" id="adjDate" type="date" value="'+(t.planDate&&t.planDate>=TODAY?t.planDate:dOff(1))+'"></div></div>'+
+    '<label class="f-label" for="adjFirst">更小的第一步</label><textarea class="f-in" id="adjFirst">'+esc(t.first)+'</textarea>'+
+    '<button class="btn" style="width:100%" data-act="save-adjust" data-id="'+id+'">保存这个方案</button>'+
+    '<div class="io"><button class="btn ghost sm" data-act="shrink-adjust" data-id="'+id+'">缩成 15 分钟</button>'+
+    '<button class="btn ghost sm" data-act="prep-adjust" data-id="'+id+'">加一件准备任务</button></div>'+
+    '<button class="sheet-x" data-act="set-plan" data-id="'+id+'" data-date="">暂时移出日程，不删除</button>');
+}
+
+/* ---------- 日程 ---------- */
 function renderToday(){
-  var list=todayTasks(), done=doneCount(), total=list.length, full=isFullDay();
-  var now=new Date();
+  var list=dayTasks(viewDate), done=doneCount(viewDate), total=list.length;
+  var isToday=viewDate===TODAY, full=isToday&&isFullDay();
+  var dayName=isToday?'今天':dayLabel(viewDate);
+  var dd=new Date(viewDate+'T12:00:00');
+  var missed=state.tasks.filter(function(t){ return t.planDate&&t.planDate<TODAY&&!t.done; });
 
   var seg='';
-  for(var i=0;i<CAP;i++) seg+='<i class="'+(i<done?'on':'')+'"></i>';
+  for(var i=0;i<CAP;i++) seg+='<i class="'+(isToday&&i<Math.min(done,CAP)?'on':'')+'"></i>';
 
   var rows=list.map(function(t){
     var st='';
@@ -915,65 +1082,49 @@ function renderToday(){
           '<i>✓</i><span>'+esc(s.t)+'</span></button>';
       }).join('')+'</div>';
     }
-    return '<div class="task'+(t.done?' done':'')+'" data-id="'+t.id+'">' +
+    return '<div class="task'+(t.done?' done':'')+((viewDate<TODAY&&!t.done)?' overdue':'')+'" data-id="'+t.id+'">' +
       '<div class="t-body">' +
         '<div class="t-title">'+esc(t.title)+'</div>' +
-        '<div class="t-first"><b>起手</b><span>'+esc(t.first)+'</span></div>' +
-        st +
+        '<div class="t-first"><b>起手</b><span>'+esc(t.first)+'</span></div>' + st +
         '<div class="t-foot">' +
-          '<span>'+t.mins+' 分</span><span class="dot"></span>' +
-          '<span>'+esc(goalName(t.g))+'</span>' +
-          (t.steps.length?'<span class="dot"></span><span>'+stepDone(t)+'/'+t.steps.length+' 步</span>':'') +
-          '<span class="dot"></span>' +
-          '<button data-act="unslot" data-id="'+t.id+'">移回</button>' +
+          '<span>'+t.mins+' 分</span><span class="dot"></span><span>'+esc(goalName(t.g))+'</span>' +
+          '<button class="plan" data-act="open-plan" data-id="'+t.id+'">'+(t.done?'已入账':'改日期')+'</button>' +
+          (!t.done?'<button data-act="open-adjust" data-id="'+t.id+'">调整方案</button>':'')+
+          '<button data-act="unslot" data-id="'+t.id+'">移出</button>' +
           '<button class="danger" data-act="del-task" data-id="'+t.id+'">删掉</button>' +
-        '</div>' +
-      '</div>' +
+        '</div></div>' +
       '<button class="seal'+(t.done?' on':'')+'" data-act="toggle" data-id="'+t.id+'" aria-label="'+
-        (t.done?'撤销完成':'完成并盖章')+'">'+(t.done?'✓':'盖')+'</button>' +
-    '</div>';
+        (t.done?'撤销完成':'完成并盖章')+'">'+(t.done?'✓':'盖')+'</button></div>';
   }).join('');
 
   var ticket='';
   var doneList=list.filter(function(t){ return t.done; });
   if(doneList.length){
     var amount=done*15+(full?5:0);
-    ticket='<div class="ticket">' +
-      '<div class="ticket-head"><span>今日结单</span><span>'+
-        (now.getMonth()+1)+'.'+now.getDate()+'</span></div>' +
-      doneList.map(function(t){
-        return '<div class="ticket-row"><span>'+
-          esc(t.title.length>14?t.title.slice(0,14)+'…':t.title)+'</span><b>+15</b></div>';
-      }).join('') +
-      (full?'<div class="ticket-row bonus"><span>全勤</span><b>+5</b></div>':'') +
-      '<div class="ticket-total"><span>今日入账</span><strong>'+amount+'</strong></div>' +
-      '<div class="ticket-foot">'+
-        (full ? '已计入连击 '+streak()+' 天。今天到此为止。'
-              : (done===total ? '今天的 '+total+' 件都入账了。放满三件才有全勤。'
-                              : '还剩 '+(total-done)+' 件没入账。'))+
-      '</div></div>';
+    ticket='<div class="ticket"><div class="ticket-head"><span>'+dayName+'结单</span><span>'+
+      (dd.getMonth()+1)+'.'+dd.getDate()+'</span></div>'+
+      doneList.map(function(t){ return '<div class="ticket-row"><span>'+
+        esc(t.title.length>14?t.title.slice(0,14)+'…':t.title)+'</span><b>+15</b></div>'; }).join('')+
+      (full?'<div class="ticket-row bonus"><span>三件完成</span><b>+5</b></div>':'')+
+      '<div class="ticket-total"><span>'+dayName+'入账</span><strong>'+amount+'</strong></div>'+
+      '<div class="ticket-foot">'+(full?'今天这部分已经够了。剩下的时间是你的。':
+        '每完成一件都算数，不用一次做到完美。')+'</div></div>';
   }
 
   var lead;
-  if(!total) lead='今天还是空的。空着不算失败，但也别一直空着。';
-  else if(full) lead='三件都入了账。剩下的时间是你的。';
-  else if(total<CAP) lead='今天放了 '+total+' 件，做完就收工。';
-  else lead='只做这三件。做完就能收工，别的不用现在想。';
+  if(!total) lead='这一天还没安排。先选一件最小的，不用等状态完美。';
+  else if(done===total) lead='安排的事都完成了。今天这部分已经够了。';
+  else if(viewDate<TODAY) lead='计划需要调整，不代表你不行。选一件，改到更合适的时间。';
+  else lead='只做眼前这一小步。做完一件，就可以停一下。';
 
-  return '<div class="vhead">' +
-      '<div class="eyebrow">'+(now.getMonth()+1)+'月'+now.getDate()+'日 · 周'+WD[now.getDay()]+'</div>' +
-      '<h1>今天</h1><p class="vlead">'+lead+'</p>' +
-    '</div>' +
-    '<div class="quota"><div class="qbar">'+seg+'</div>' +
-      '<div class="qmeta"><span>完成 <b>'+done+'</b> / '+CAP+'</span>' +
-      '<span>'+(total?'已投入 '+fmtMins(spentMins())+' · 共 '+fmtMins(totalMins()):'还没开始')+'</span></div>' +
-    '</div>' +
-    (total
-      ? '<div class="seclabel"><span>今日清单</span><em>'+
-          (full?'已入账':(done?'入账中':'未完成'))+'</em></div>'+rows
-      : emptyBox('','今天还没开张','先建一个目标，分几个阶段，再从阶段里挑三件放到今天。一次只放三件。',
-          '<button class="btn" data-act="goto" data-view="goals">去建一个目标</button>')) +
-    ticket;
+  return '<div class="vhead"><div class="eyebrow">'+(dd.getMonth()+1)+'月'+dd.getDate()+'日 · 周'+WD[dd.getDay()]+'</div>'+
+    '<h1>'+dayName+'</h1><p class="vlead">'+lead+'</p></div>'+dateStrip()+
+    '<div class="quota"><div class="qbar">'+seg+'</div><div class="qmeta"><span>完成 <b>'+done+'</b> / '+total+'</span>'+
+    '<span>'+(total?'预计 '+fmtMins(totalMins(viewDate)):'未安排')+'</span></div></div>'+
+    (isToday&&missed.length?'<div class="soft-note"><b>有 '+missed.length+' 件事还没完成，不用急着补。</b>计划可以变，你没被扣分。挑一件重新安排，或者先把它缩小。</div>':'')+
+    '<div class="encourage"><p>'+esc(CHEERS[cheerIndex%CHEERS.length])+'</p><button data-act="next-cheer">换一句</button></div>'+
+    (total?'<div class="seclabel"><span>'+dayName+'清单</span><em>'+(done===total?'已完成':'按自己的节奏来')+'</em></div>'+rows:
+      emptyBox('',dayName+'留点空白','空白也可以是休息。想安排时，从目标里挑一件小事。','<button class="btn" data-act="goto" data-view="goals">去选一件事</button>'))+ticket;
 }
 
 /* ---------- 拆解 ---------- */
@@ -1088,13 +1239,13 @@ function gStats(g){
   return { n:ts.length, d:ts.filter(function(t){ return t.done; }).length };
 }
 function ptRow(t){
-  var here=t.slot==='today';
+  var when=t.done?('已完成 · '+(t.doneDate||'')):(t.planDate?dayLabel(t.planDate)+' · '+t.planDate:'未安排');
   return '<div class="pt">' +
     '<button class="pt-c'+(t.done?' on':'')+'" data-act="toggle-pt" data-id="'+t.id+'" aria-label="'+(t.done?'撤销':'勾掉')+'">✓</button>' +
     '<button class="pt-t'+(t.done?' on':'')+'" data-act="toggle-pt" data-id="'+t.id+'">'+esc(t.title)+'</button>' +
-    '<button class="pt-put'+(here?' here':'')+'" data-act="pt-today" data-id="'+t.id+'">'+(here?'在今天':'→今天')+'</button>' +
+    '<button class="pt-put'+(t.planDate?' here':'')+'" data-act="open-plan" data-id="'+t.id+'">安排</button>' +
     '<button class="pt-x'+(pendingDel==='pt:'+t.id?' armed':'')+'" data-act="del-pt" data-id="'+t.id+'" aria-label="删掉">×</button>' +
-  '</div>';
+    '<div class="pt-date">'+esc(when)+'</div></div>';
 }
 function stageBlock(g,st){
   var ts=stageTasks(g.id,st.id);
@@ -1116,16 +1267,15 @@ function stageBlock(g,st){
     '</div>';
   }
   return '<div class="'+cls+'">' +
-    '<button class="st-head" data-act="open-stage" data-id="'+st.id+'">' +
-      '<div class="st-dot"></div>' +
-      '<div class="st-body">' +
-        '<div class="st-name">'+esc(st.name)+'</div>' +
-        '<div class="st-n">'+(n ? d+' / '+n+' 件':(isOpen?'还没加东西':'点开加几件'))+'</div>' +
-      '</div>' +
-      '<div class="st-arrow">›</div>' +
-    '</button>' +
-    '<div class="st-bar"><i style="width:'+pct+'%"></i></div>' +
-  inner + '</div>';
+    (openAdd==='rename:'+st.id
+      ? '<div class="st-form" style="padding:10px 13px 0"><input class="st-in" id="renameStage" value="'+esc(st.name)+'" enterkeyhint="done" data-sid="'+st.id+'" data-gid="'+g.id+'">'+
+        '<button class="st-ok" data-act="save-stage-name" data-sid="'+st.id+'" data-gid="'+g.id+'">存</button></div>'+
+        '<button class="sheet-x" style="min-height:32px;margin:0" data-act="cancel-rename">取消改名</button>'
+      : '<button class="st-head" data-act="open-stage" data-id="'+st.id+'">' +
+      '<div class="st-dot"></div><div class="st-body"><div class="st-name">'+esc(st.name)+'</div>' +
+      '<div class="st-n">'+(n ? d+' / '+n+' 件':(isOpen?'还没加东西':'点开加几件'))+'</div></div></button>'+
+      '<button class="st-rename" data-act="rename-stage" data-sid="'+st.id+'" data-gid="'+g.id+'">改名</button>') +
+    '<div class="st-bar"><i style="width:'+pct+'%"></i></div>' + inner + '</div>';
 }
 
 function renderGoals(){
@@ -1166,7 +1316,7 @@ function renderGoals(){
       '<p class="vlead">一个目标分几个阶段，每个阶段放几件做得完的事。勾一件，进度就往前走一格。</p></div>' +
     (openForm==='goal'?goalForm():'<button class="btn ghost" style="width:100%;margin-bottom:12px" data-act="open-goal-form">＋ 新建目标</button>') +
     (state.goals.length?cards:(openForm==='goal'?'':emptyBox('','还没有目标','先写一个你想走到的地方，再把它分成几个阶段。一次别超过三个。',''))) +
-    '<p class="hint">勾了只推进度。点「→今天」占一个名额，盖章才计分。</p>';
+    '<p class="hint">没安排日期的任务，勾了只推进度。安排到日程后完成才计分；延期不扣分。</p>';
 }
 
 function goalForm(){
@@ -1185,80 +1335,125 @@ function goalForm(){
 
 /* ---------- 成就 ---------- */
 function renderBadges(){
-  var lv=levelInfo(), cells='';
-  for(var i=-27;i<=0;i++){
-    var d=dOff(i);
-    cells+='<div class="cell'+(state.checks.indexOf(d)>=0?' on':'')+(i===0?' today':'')+'"></div>';
+  var lv=levelInfo(), range=badgeRange==='365'?365:(badgeRange==='84'?84:28);
+  var rangeName=range===28?'近 4 周':(range===84?'近 12 周':'近一年');
+  var doneHistory=state.history.filter(function(h){ return h.type==='done'; });
+  var totalM=doneHistory.reduce(function(a,h){ return a+(h.mins||0); },0);
+  var goalDone=state.goals.filter(function(g){ var s=gStats(g); return s.n&&s.n===s.d; }).length;
+  var cells='', periods='';
+  if(range===28){
+    for(var i=-27;i<=0;i++){
+      var d=dOff(i), c=dayCount(d)||state.weekLog[d]||0;
+      cells+='<div class="cell'+(c?' on':'')+(i===0?' today':'')+'" title="'+d+' · '+c+' 件"></div>';
+    }
+  } else {
+    var count=range===84?12:12;
+    for(var p=count-1;p>=0;p--){
+      var key='', label='', sum=0;
+      if(range===84){
+        var start=dOff(-7*p-6), end=dOff(-7*p); key=start.slice(5); label=start.slice(5).replace('-','/');
+        doneHistory.forEach(function(h){ if(h.date>=start&&h.date<=end) sum++; });
+      } else {
+        var md=new Date(TODAY+'T12:00:00'); md.setDate(1); md.setMonth(md.getMonth()-p);
+        key=md.getFullYear()+'-'+pad(md.getMonth()+1); label=(md.getMonth()+1)+'月';
+        doneHistory.forEach(function(h){ if((h.date||'').slice(0,7)===key) sum++; });
+      }
+      periods+='<div class="period-cell'+(sum?' on':'')+'"><b>'+sum+'</b><span>'+label+'</span></div>';
+    }
   }
   var badges=[
-    {n:'第一天',s:'完成第一天的三件事',ic:'首',ok:state.checks.length>0},
-    {n:'七日',s:'连续 7 天入账',ic:'七',ok:streak()>=7},
-    {n:'走完一个',s:'任意一个目标的步全部划掉',ic:'满',
-      ok:state.goals.some(function(g){
-        var ts=state.tasks.filter(function(t){ return t.g===g.id; });
-        return ts.length && ts.every(function(t){ return t.done; });
-      })},
-    {n:'三十天',s:'连击到 30 天',ic:'卅',ok:streak()>=30}
+    {n:'第一天',s:'第一次完成当天三件事',ic:'首',ok:state.checks.length>0},
+    {n:'七日',s:'最长连续 7 天入账',ic:'七',ok:longestStreak()>=7},
+    {n:'走完一个',s:'任意一个目标全部完成',ic:'满',ok:goalDone>0},
+    {n:'三十天',s:'最长连击到 30 天',ic:'卅',ok:longestStreak()>=30}
   ];
   var bh=badges.map(function(b){
-    return '<div class="badge'+(b.ok?' ok':' lock')+'">' +
-      '<div class="badge-ic">'+b.ic+'</div>' +
-      '<div><div class="badge-n">'+b.n+'</div><div class="badge-s">'+b.s+'</div></div>' +
-    '</div>';
+    return '<div class="badge'+(b.ok?' ok':' lock')+'"><div class="badge-ic">'+b.ic+'</div>'+
+      '<div><div class="badge-n">'+b.n+'</div><div class="badge-s">'+b.s+'</div></div></div>';
   }).join('');
-
-  return '<div class="vhead"><div class="eyebrow">LEDGER</div><h1>成就</h1>' +
-      '<p class="vlead">每一枚章都留在这儿。你可以很慢，但不会清零。</p></div>' +
-    '<div class="ledger">' +
-      '<div class="lv-top"><span class="lv-name">'+lv.name+'</span><span class="lv-no">LV '+lv.lv+'</span></div>' +
-      '<div class="lv-bar"><i style="width:'+lv.pct+'%"></i></div>' +
-      '<div class="lv-meta"><span>累计 <b>'+state.points+'</b> 分</span><span>还差 '+Math.max(0,lv.next-state.points)+' 分</span></div>' +
-    '</div>' +
-    '<div class="seclabel"><span>最近 4 周</span><em>连击 '+streak()+' 天</em></div>' +
-    '<div class="grid28">'+cells+'</div>' +
-    '<div class="legend"><span><i></i>入过账</span><span><i class="off"></i>没动</span><span>青框是今天</span></div>' +
-    '<div class="seclabel"><span>徽章</span><em>'+
-      badges.filter(function(b){ return b.ok; }).length+' / 4</em></div>' +
-    bh;
+  return '<div class="vhead"><div class="eyebrow">LEDGER</div><h1>成就</h1>'+
+    '<p class="vlead">看见自己走过的路，不用每天都满格。</p></div>'+
+    '<div class="ledger"><div class="lv-top"><span class="lv-name">'+lv.name+'</span><span class="lv-no">LV '+lv.lv+'</span></div>'+
+    '<div class="lv-bar"><i style="width:'+lv.pct+'%"></i></div><div class="lv-meta"><span>累计 <b>'+state.points+'</b> 分</span><span>当前连击 '+streak()+' 天</span></div></div>'+
+    '<div class="stat-grid"><div class="stat"><b>'+doneHistory.length+'</b><span>累计完成 / 件</span></div>'+
+    '<div class="stat"><b>'+fmtMins(totalM)+'</b><span>累计投入</span></div>'+
+    '<div class="stat"><b>'+goalDone+'</b><span>走完的目标</span></div>'+
+    '<div class="stat"><b>'+longestStreak()+' 天</b><span>最长连击</span></div>'+
+    '<div class="stat"><b>'+Math.max(1,1-daysLeft(state.startedAt))+' 天</b><span>开始记录至今</span></div>'+
+    '<div class="stat"><b>'+state.journal.length+'</b><span>留下的心得</span></div></div>'+
+    '<div class="range-tabs"><button class="'+(range===28?'on':'')+'" data-act="badge-range" data-range="28">近4周</button>'+
+    '<button class="'+(range===84?'on':'')+'" data-act="badge-range" data-range="84">近12周</button>'+
+    '<button class="'+(range===365?'on':'')+'" data-act="badge-range" data-range="365">近一年</button></div>'+
+    '<div class="seclabel"><span>'+rangeName+'</span><em>'+(range===28?'每格一天':'数字是完成件数')+'</em></div>'+
+    (range===28?'<div class="grid28">'+cells+'</div>':'<div class="period-grid">'+periods+'</div>')+
+    '<div class="seclabel"><span>徽章</span><em>'+badges.filter(function(b){ return b.ok; }).length+' / 4</em></div>'+bh+
+    '<p class="hint">从 '+state.startedAt+' 开始记录。旧版未保存日期的历史不会被虚构补回。</p>';
 }
 
 /* ---------- 复盘 ---------- */
+function openJournal(id){
+  var j=id?state.journal.filter(function(x){ return x.id===id; })[0]:null;
+  journalId=j?j.id:null;
+  openModal('<div class="sheet-t">'+(j?'回看并修改心得':'记一笔心得')+'</div>'+
+    '<div class="sheet-s">不评判自己，只记录发生了什么，以及下一次想怎么调整。</div>'+
+    '<label class="f-label" for="jDate">日期</label><input class="f-in" id="jDate" type="date" value="'+(j?j.date:TODAY)+'">'+
+    '<label class="f-label">今天的感觉</label><div class="mood-row" id="moodRow">'+
+      ['轻松','一般','有点累'].map(function(m){ return '<button class="'+(((j?j.mood:'一般')===m)?'on':'')+'" data-act="pick-mood" data-mood="'+m+'">'+m+'</button>'; }).join('')+'</div>'+
+    '<label class="f-label" for="jGood">做得好的一点</label><textarea class="f-in" id="jGood" placeholder="哪怕只是开始了五分钟">'+esc(j?j.good:'')+'</textarea>'+
+    '<label class="f-label" for="jHard">卡在哪里</label><textarea class="f-in" id="jHard" placeholder="写事实，不给自己下结论">'+esc(j?j.hard:'')+'</textarea>'+
+    '<label class="f-label" for="jNext">下一次怎么调</label><textarea class="f-in" id="jNext" placeholder="例如：先缩小成十五分钟">'+esc(j?j.next:'')+'</textarea>'+
+    '<button class="btn" style="width:100%" data-act="save-journal">保存心得</button>');
+}
+function saveJournal(){
+  var good=val('jGood'), hard=val('jHard'), next=val('jNext');
+  if(!good&&!hard&&!next){ toast('写一句也好'); return; }
+  var moodEl=document.querySelector('#moodRow button.on');
+  var j={id:journalId||uid('j'),date:val('jDate')||TODAY,mood:moodEl?moodEl.getAttribute('data-mood'):'一般',
+    good:good,hard:hard,next:next,updated:localStamp()};
+  if(journalId) state.journal=state.journal.map(function(x){ return x.id===journalId?j:x; });
+  else state.journal.push(j);
+  journalId=null; save(); closeModal(); render(); toast('心得已保存，以后可以回看');
+}
+function journalCard(j){
+  var text=[j.good?'做得好：'+j.good:'',j.hard?'卡住了：'+j.hard:'',j.next?'下次调整：'+j.next:''].filter(Boolean).join('\n');
+  return '<div class="journal-card"><div class="journal-top"><span class="journal-date">'+esc(j.date)+'</span><span class="journal-mood">'+esc(j.mood||'一般')+'</span></div>'+
+    '<p class="journal-text">'+esc(text)+'</p><div class="journal-acts"><button data-act="edit-journal" data-id="'+j.id+'">回看 / 修改</button>'+
+    '<button class="danger" data-act="del-journal" data-id="'+j.id+'">'+(pendingDel==='j:'+j.id?'再点一次删除':'删除')+'</button></div></div>';
+}
 function renderReview(){
   var days=[], total=0;
   for(var i=-6;i<=0;i++){
-    var d=dOff(i);
-    var c=(i===0)?doneCount():(state.weekLog[d]||0);
-    total+=c;
-    days.push({d:new Date(d+'T00:00:00'),c:c});
+    var d=dOff(i), c=dayCount(d);
+    total+=c; days.push({d:new Date(d+'T12:00:00'),c:c});
   }
   var target=CAP*7, rate=total/target;
   var max=Math.max(1,Math.max.apply(null,days.map(function(x){ return x.c; })));
   var bars=days.map(function(x){
     var h=Math.round(x.c/max*100);
-    return '<i class="'+(x.c?'on':'')+(x.d.getDate()===new Date().getDate()?' today':'')+'" style="height:'+Math.max(h,3)+'%"></i>';
+    return '<i class="'+(x.c?'on':'')+(iso(x.d)===TODAY?' today':'')+'" style="height:'+Math.max(h,3)+'%"></i>';
   }).join('');
   var axis=days.map(function(x){ return '<span>'+WD[x.d.getDay()]+'</span>'; }).join('');
   var comment;
-  if(total===0) comment='这周还没入账。别急着怪自己，明天把第一件改成 10 分钟就能做完的。';
-  else if(rate<0.5) comment='这周入账偏少。别急着怪自己，明天把第一件改成 10 分钟就能做完的。';
-  else if(rate<0.85) comment='节奏在变稳。挑一件你觉得最难的，看看能不能拆成两步。';
-  else comment='这周基本满额。接下来不是加量，是让这个节奏变得不费力。';
-
-  return '<div class="vhead"><div class="eyebrow">REVIEW</div><h1>复盘</h1>' +
-      '<p class="vlead">只看数据，不评判人。然后只改一件事。</p></div>' +
-    '<div class="ledger" style="display:flex;align-items:flex-end;gap:12px">' +
-      '<div style="font-family:var(--mono);font-size:40px;line-height:1;font-weight:500">'+total+'</div>' +
-      '<div style="padding-bottom:3px;font-size:12px;color:var(--muted)">/ '+target+' 件<br>本周入账率 '+Math.round(rate*100)+'%</div>' +
-    '</div>' +
-    '<div class="seclabel"><span>每天完成</span><em>上限 '+CAP+'</em></div>' +
-    '<div class="bars">'+bars+'</div><div class="axis">'+axis+'</div>' +
-    '<p class="hint">'+comment+'</p>' +
-    '<div class="seclabel"><span>下周只改一件事</span></div>' +
-    '<div class="note-box"><textarea id="noteInput" placeholder="例如：把最难的那件放到上午第一节前">'+
-      esc(state.note)+'</textarea>' +
-      '<div style="margin-top:10px"><button class="btn sm" data-act="save-note">存进下周</button></div></div>' +
-    '<div class="io"><button class="btn ghost sm" data-act="export">导出备份</button>' +
-      '<button class="btn ghost sm" data-act="import">导入备份</button></div>' +
+  if(total===0) comment='这周还没有记录。可以从一件十分钟的小事开始，也可以先休息。';
+  else if(rate<0.5) comment='这周做得少一些。只调整计划，不给自己下结论。';
+  else if(rate<0.85) comment='节奏在变稳。保留最有效的一个做法就够了。';
+  else comment='这周完成了不少。接下来不是加量，是让节奏变得不费力。';
+  var js=state.journal.slice().sort(function(a,b){ return (b.date+b.updated).localeCompare(a.date+a.updated); });
+  var visible=journalAll?js:js.slice(0,3);
+  return '<div class="vhead"><div class="eyebrow">REVIEW</div><h1>复盘</h1>'+
+    '<p class="vlead">看数据，也听听自己的感受。然后只改一件事。</p></div>'+
+    '<div class="ledger" style="display:flex;align-items:flex-end;gap:12px">'+
+    '<div style="font-family:var(--mono);font-size:40px;line-height:1;font-weight:500">'+total+'</div>'+
+    '<div style="padding-bottom:3px;font-size:12px;color:var(--muted)">/ '+target+' 件<br>本周参考值 '+Math.round(rate*100)+'%</div></div>'+
+    '<div class="seclabel"><span>每天完成</span><em>不要求每天满额</em></div><div class="bars">'+bars+'</div><div class="axis">'+axis+'</div>'+
+    '<p class="hint">'+comment+'</p><div class="seclabel"><span>心得</span><em>'+state.journal.length+' 条记录</em></div>'+
+    '<button class="btn ghost" style="width:100%" data-act="new-journal">＋ 记一笔心得</button>'+
+    '<div style="margin-top:12px">'+(visible.length?visible.map(journalCard).join(''):'<div class="soft-note">写下做得好的一点、卡在哪里、下次怎么调。以后随时能回来翻。</div>')+'</div>'+
+    (js.length>3?'<button class="sheet-x" data-act="toggle-journal-all">'+(journalAll?'收起':'查看全部 '+js.length+' 条')+'</button>':'')+
+    '<div class="seclabel"><span>下周只改一件事</span></div>'+
+    '<div class="note-box"><textarea id="noteInput" placeholder="例如：把最难的那件放到上午第一节前">'+esc(state.note)+'</textarea>'+
+    '<div style="margin-top:10px"><button class="btn sm" data-act="save-note">存进下周</button></div></div>'+
+    '<div class="io"><button class="btn ghost sm" data-act="export">导出备份</button><button class="btn ghost sm" data-act="import">导入备份</button></div>'+
     '<input type="file" id="fileIn" accept="application/json" style="display:none">';
 }
 
@@ -1286,12 +1481,18 @@ function go(v){ VIEW=v; selId=null; render(); window.scrollTo(0,0); }
 
 function toggleTask(id){
   var t=byId(id); if(!t) return;
-  var before=isFullDay();
-  if(t.done){ t.done=false; state.points=Math.max(0,state.points-15); dropCheckIfEmpty(); toast('已撤销'); }
-  else { t.done=true; state.points+=15; addCheck(); toast('入账 +15'); }
-  var after=isFullDay();
-  if(!before && after){ state.points+=5; setTimeout(function(){ toast('三件做完，全勤 +5'); },700); }
-  if(before && !after){ state.points=Math.max(0,state.points-5); }
+  var wasFull=isFullDay();
+  if(t.done){
+    t.done=false; t.doneDate=''; state.points=Math.max(0,state.points-15);
+    historyUndone(t); syncDayStats(TODAY);
+    if(wasFull&&!isFullDay()) state.points=Math.max(0,state.points-5);
+    toast('已撤销，完成记录也同步调整');
+  } else {
+    t.done=true; t.doneDate=TODAY; t.planDate=TODAY; t.slot='today';
+    state.points+=15; historyDone(t,TODAY); syncDayStats(TODAY);
+    toast('入账 +15 · 完成这一件就很好');
+    if(!wasFull&&isFullDay()){ state.points+=5; setTimeout(function(){ toast('三件完成 +5 · 今天这部分已经够了'); },700); }
+  }
   save(); render();
   var el=document.querySelector('.task[data-id="'+id+'"]');
   if(el){ el.classList.add('pop'); setTimeout(function(){ el.classList.remove('pop'); },700); }
@@ -1344,7 +1545,7 @@ function importData(file){
     try{
       var s=JSON.parse(r.result);
       if(!s || !Array.isArray(s.tasks)) throw new Error('bad');
-      state=s; save(); VIEW='today'; selId=null; render(); toast('已导入');
+      state=fixState(s); save(); VIEW='today'; selId=null; viewDate=TODAY; render(); toast('已导入，心得和历史也在');
     }catch(e){ toast('这个文件读不出来'); }
   };
   r.readAsText(file);
@@ -1363,6 +1564,50 @@ document.addEventListener('click',function(e){
 
   switch(act){
     case 'goto': go(el.getAttribute('data-view')); break;
+    case 'view-date': viewDate=el.getAttribute('data-date'); pendingDel=null; render(); break;
+    case 'next-cheer': cheerIndex++; render(); break;
+    case 'badge-range': badgeRange=el.getAttribute('data-range'); render(); break;
+    case 'open-plan': openPlan(id); break;
+    case 'set-plan': setPlan(id,el.getAttribute('data-date')); break;
+    case 'set-custom-plan': setPlan(id,val('planDate')); break;
+    case 'open-adjust': openAdjust(id); break;
+    case 'save-adjust':
+      var ad=byId(id); if(!ad) return;
+      var an=val('adjTitle'), am=parseInt(val('adjMins'),10), adate=val('adjDate');
+      if(!an){ toast('给任务留个名字'); return; }
+      if(am<5||am>600){ toast('预计时间填 5 到 600 分钟'); return; }
+      var oldPlan=ad.planDate;
+      ad.title=an; ad.mins=am; ad.first=val('adjFirst')||'先做最小的一步';
+      ad.planDate=adate; ad.slot=adate===TODAY?'today':'pool';
+      state.history.push({id:uid('h'),type:'adjust',taskId:id,title:an,date:localStamp(),from:oldPlan,to:adate,note:'缩小或调整了方案'});
+      syncDayStats(oldPlan); syncDayStats(adate); save(); closeModal(); render();
+      toast('方案已调整 · 没扣分，按新的来');
+      break;
+    case 'shrink-adjust':
+      var sa=byId(id); if(!sa) return;
+      sa.mins=15; if(!sa.title.match(/15 分钟/)) sa.title='用 15 分钟开始：'+sa.title;
+      save(); closeModal(); render(); toast('已缩成 15 分钟，先开始就好');
+      break;
+    case 'prep-adjust':
+      var pa=byId(id); if(!pa) return;
+      state.tasks.push({id:uid('t'),g:pa.g,stage:pa.stage,title:'准备：'+pa.title,mins:15,
+        first:'只准备要用的东西，不求完成',slot:'pool',planDate:dOff(1),done:false,doneDate:'',steps:[],deps:[],from:'manual'});
+      save(); closeModal(); render(); toast('已加一件 15 分钟准备任务，安排在明天');
+      break;
+    case 'close-modal': closeModal(); break;
+    case 'noop': break;
+    case 'new-journal': openJournal(null); break;
+    case 'edit-journal': openJournal(id); break;
+    case 'pick-mood':
+      var mbs=document.querySelectorAll('#moodRow button');
+      for(var mi=0;mi<mbs.length;mi++) mbs[mi].classList.toggle('on',mbs[mi]===el);
+      break;
+    case 'save-journal': saveJournal(); break;
+    case 'toggle-journal-all': journalAll=!journalAll; render(); break;
+    case 'del-journal':
+      if(pendingDel!=='j:'+id){ pendingDel='j:'+id; render(); toast('再点一次删除这条心得'); }
+      else { state.journal=state.journal.filter(function(j){ return j.id!==id; }); pendingDel=null; save(); render(); toast('心得已删除'); }
+      break;
     case 'toggle': toggleTask(id); break;
     case 'step':
       var t=byId(id), i=parseInt(el.getAttribute('data-i'),10);
@@ -1370,7 +1615,7 @@ document.addEventListener('click',function(e){
       break;
     case 'unslot':
       var u=byId(id);
-      if(u){ u.slot='pool'; u.done=false; save(); render(); toast('已移回池子'); }
+      if(u){ var od=u.planDate; u.planDate=''; u.slot='pool'; syncDayStats(od); save(); render(); toast('已移出日程，任务和完成记录都保留'); }
       break;
     case 'del-task':
       if(pendingDel!=='t:'+id){ pendingDel='t:'+id; render(); toast('再点一次确认删除'); }
@@ -1437,10 +1682,22 @@ document.addEventListener('click',function(e){
       var atx=val('ptName');
       if(!atx){ toast('先写一件要做的事'); return; }
       state.tasks.push({ id:uid('t'), g:agid, stage:asid, title:atx, mins:30,
-        first:'先做最小的一步', slot:'pool', done:false, steps:[], deps:[], from:'manual' });
+        first:'先做最小的一步', slot:'pool', planDate:'', doneDate:'', done:false, steps:[], deps:[], from:'manual' });
       save(); openAdd='pt:'+asid; openStage=asid; render();
       var pin2=$('ptName'); if(pin2) pin2.focus();
       toast('加上了');
+      break;
+    case 'rename-stage':
+      openStage=el.getAttribute('data-sid'); openAdd='rename:'+openStage; pendingDel=null; render();
+      var rni=$('renameStage'); if(rni){ rni.focus(); rni.select(); }
+      break;
+    case 'cancel-rename': openAdd=null; render(); break;
+    case 'save-stage-name':
+      var rsid=el.getAttribute('data-sid'), rg=goalById(el.getAttribute('data-gid'));
+      var rname=val('renameStage');
+      if(!rname){ toast('阶段名不能为空'); return; }
+      if(rg) rg.stages.forEach(function(st){ if(st.id===rsid) st.name=rname; });
+      openAdd=null; save(); render(); toast('阶段名字改好了，进度没变');
       break;
     case 'open-stage-form':
       openAdd='stage:'+el.getAttribute('data-gid'); pendingDel=null; render();
@@ -1458,15 +1715,23 @@ document.addEventListener('click',function(e){
       break;
     case 'toggle-pt':
       var pt=byId(id);
-      if(pt){ pt.done=!pt.done; save(); render(); }
+      if(pt&&pt.planDate){ toggleTask(id); }
+      else if(pt){
+        pt.done=!pt.done;
+        if(pt.done){
+          pt.doneDate=TODAY; historyDone(pt,TODAY);
+          var pg=goalById(pt.g), pst=pg?pg.stages.filter(function(s){return s.id===pt.stage;})[0]:null;
+          var ps=pst?stageTasks(pg.id,pst.id):[];
+          var msg='进度往前走了一格 · 安排到日程才计分';
+          if(ps.length&&ps.every(function(x){return x.done;})) msg='这个阶段走完了 · 你完成的是一整段路';
+          if(pg&&gStats(pg).n===gStats(pg).d&&gStats(pg).n>0) msg='目标已达成 · 这段长期投入有了结果';
+          toast(msg);
+        }
+        else { pt.doneDate=''; historyUndone(pt); toast('已撤销进度'); }
+        save(); render();
+      }
       break;
-    case 'pt-today':
-      var pq=byId(id);
-      if(!pq) return;
-      if(pq.slot==='today'){ pq.slot='pool'; toast('已移回阶段'); }
-      else if(todayTasks().length>=CAP){ toast('今天满了，先移回一件'); }
-      else { pq.slot='today'; toast('放到今天了，去今天页盖章'); }
-      save(); render(); break;
+    case 'pt-today': openPlan(id); break;
     case 'del-pt':
       if(pendingDel!=='pt:'+id){ pendingDel='pt:'+id; render(); toast('再点一次删掉'); }
       else {
@@ -1523,6 +1788,7 @@ document.addEventListener('keydown',function(e){
   if(kid==='goalText'){ decompose(); return; }
   if(kid==='ptName'){ e.preventDefault(); var b1=document.querySelector('[data-act="add-pt"]'); if(b1) b1.click(); return; }
   if(kid==='stName'){ e.preventDefault(); var b2=document.querySelector('[data-act="add-stage"]'); if(b2) b2.click(); return; }
+  if(kid==='renameStage'){ e.preventDefault(); var b3=document.querySelector('[data-act="save-stage-name"]'); if(b3) b3.click(); return; }
 });
 document.addEventListener('change',function(e){
   if(e.target && e.target.id==='fileIn' && e.target.files[0]) importData(e.target.files[0]);
@@ -1533,13 +1799,12 @@ function rollDate(){
   var t=dOff(0);
   if(state.today!==t){
     var prev=state.today;
-    state.weekLog[prev]=state.weekLog[prev]||0;
-    var y=state.tasks.filter(function(x){ return x.slot==='today' && x.done; }).length;
-    if(y) state.weekLog[prev]=y;
-    state.tasks.forEach(function(x){ if(x.slot==='today'){ x.slot='pool'; x.done=false; } });
-    state.tasks.filter(function(x){ return x.slot==='pool'; }).slice(0,CAP)
-      .forEach(function(x){ x.slot='today'; });
-    state.today=t; save();
+    var y=state.tasks.filter(function(x){ return x.planDate===prev&&x.done; }).length;
+    state.weekLog[prev]=y;
+    state.tasks.forEach(function(x){ if(x.slot==='today') x.slot='pool'; });
+    state.today=t;
+    if(viewDate===prev) viewDate=t;
+    save();
   }
 }
 rollDate();
