@@ -669,8 +669,11 @@ function save(){
 
 /* ===================== 云同步（Supabase REST） ===================== */
 var CK='ruzhangben_cloud';
+/* 内置云配置：换设备/清缓存后自动连上，无需手动填 */
+var BUILTIN={url:'https://sdbtjreomutzdvjaskjz.supabase.co',key:'sb_publishable_EgY7O_GiwBils6DyHHF7bw_JgPfTNr7',table:'ledger'};
 var cloud=null;
 try{ var rc=localStorage.getItem(CK); cloud=rc?JSON.parse(rc):null; }catch(e){ cloud=null; }
+if(!cloud||!cloud.url||!cloud.key){ cloud=BUILTIN.url?{url:BUILTIN.url,key:BUILTIN.key,table:BUILTIN.table}:null; }
 var pushTimer=null;
 
 function setSyn(m){
