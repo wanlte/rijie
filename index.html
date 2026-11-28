@@ -63,6 +63,12 @@ ul{margin:0;padding:0;list-style:none;}
 }
 .streak{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.06em;}
 .streak b{color:var(--cyan);font-weight:500;font-size:14px;}
+.bar-r{display:flex;align-items:center;gap:9px;}
+.syn{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .25s;}
+.syn.ok{background:var(--ok);box-shadow:0 0 9px rgba(52,211,153,.55);}
+.syn.busy{background:var(--cyan);animation:blink 1s ease-in-out infinite;}
+.syn.err{background:#E0705E;box-shadow:0 0 8px rgba(224,112,94,.5);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
 
 /* ===== 主区 ===== */
 #view{flex:1;padding:0 16px 128px;}
@@ -457,6 +463,7 @@ textarea.f-in{min-height:96px;resize:vertical;}
 .sheet{
   width:100%;max-width:560px;padding:18px 18px calc(20px + env(safe-area-inset-bottom));
   background:#14141B;border-radius:20px 20px 0 0;border:1px solid var(--stroke-2);border-bottom:0;
+  max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
   animation:sheetIn .26s cubic-bezier(.2,1.1,.4,1);
 }
 .sheet-t{font-size:15px;font-weight:700;}
@@ -469,6 +476,14 @@ textarea.f-in{min-height:96px;resize:vertical;}
 }
 .sheet-item span{font-family:var(--mono);font-size:11px;color:var(--dim);}
 .sheet-x{width:100%;margin-top:10px;min-height:46px;font-size:13.5px;color:var(--muted);}
+.synbtn{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:9px;
+}
+.synbtn:active{background:rgba(255,255,255,.06);}
+.cloud-note{margin-top:12px;font-size:11.5px;line-height:1.75;color:var(--dim);}
+.cloud-f{margin-top:4px;}
+.cloud-f .f-in{height:44px;font-size:15px;}
 
 /* ===== 底部导航 ===== */
 .tabbar{
@@ -536,7 +551,10 @@ textarea.f-in{min-height:96px;resize:vertical;}
 <div class="app">
   <header class="bar">
     <div class="brand"><i></i>入账本</div>
-    <div class="streak">连击 <b id="streakNum">0</b> 天</div>
+    <div class="bar-r">
+      <button class="synbtn" data-act="open-cloud" aria-label="云同步"><i class="syn" id="synDot"></i></button>
+      <div class="streak">连击 <b id="streakNum">0</b> 天</div>
+    </div>
   </header>
   <main id="view"></main>
   <nav class="tabbar">
@@ -566,6 +584,7 @@ textarea.f-in{min-height:96px;resize:vertical;}
   </div>
 </div>
 <div id="toastHost"></div>
+<div id="cloudHost"></div>
 <script>
 (function(){
 'use strict';
@@ -593,19 +612,8 @@ function val(id){ var e=$(id); return e ? e.value.trim() : ''; }
 function blank(){
   return { today:TODAY, points:0, checks:[], weekLog:{}, note:'', goals:[], tasks:[], lastRun:null };
 }
-function load(){
-  var raw=null, key=LS;
-  try{ raw=localStorage.getItem(LS); }catch(e){}
-  if(!raw){
-    for(var i=0;i<OLDS.length;i++){
-      try{ raw=localStorage.getItem(OLDS[i]); }catch(e){}
-      if(raw){ key=OLDS[i]; break; }
-    }
-  }
-  if(!raw) return blank();
-  var s;
-  try{ s=JSON.parse(raw); }catch(e){ return blank(); }
-  if(!s || typeof s!=='object') return blank();
+function fixState(s){
+  if(!s || typeof s!=='object') return null;
   s.today = s.today || TODAY;
   s.points = s.points || 0;
   s.checks = Array.isArray(s.checks) ? s.checks : [];
@@ -634,11 +642,118 @@ function load(){
       loose.forEach(function(t){ t.stage = sid; });
     }
   });
+  return s;
+}
+function load(){
+  var raw=null, key=LS;
+  try{ raw=localStorage.getItem(LS); }catch(e){}
+  if(!raw){
+    for(var i=0;i<OLDS.length;i++){
+      try{ raw=localStorage.getItem(OLDS[i]); }catch(e){}
+      if(raw){ key=OLDS[i]; break; }
+    }
+  }
+  if(!raw) return blank();
+  var s;
+  try{ s=JSON.parse(raw); }catch(e){ return blank(); }
+  s=fixState(s);
+  if(!s) return blank();
   if(key!==LS){ try{ localStorage.setItem(LS, JSON.stringify(s)); }catch(e){} }
   return s;
 }
 var state=load();
-function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
+function save(){
+  try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){}
+  schedulePush();
+}
+
+/* ===================== 云同步（Supabase REST） ===================== */
+var CK='ruzhangben_cloud';
+var cloud=null;
+try{ var rc=localStorage.getItem(CK); cloud=rc?JSON.parse(rc):null; }catch(e){ cloud=null; }
+var pushTimer=null;
+
+function setSyn(m){
+  var d=$('synDot'); if(!d) return;
+  d.className='syn'+(m==='ok'?' ok':(m==='busy'?' busy':(m==='err'?' err':'')));
+}
+function keepCfg(c){
+  cloud=c;
+  try{ if(c) localStorage.setItem(CK,JSON.stringify(c)); else localStorage.removeItem(CK); }catch(e){}
+}
+function sbUrl(){ return (cloud.url||'').replace(/\/+$/,'')+'/rest/v1/'+(cloud.table||'ledger'); }
+function sbHead(extra){
+  var h={'apikey':cloud.key,'Authorization':'Bearer '+cloud.key};
+  if(extra) for(var k in extra) h[k]=extra[k];
+  return h;
+}
+function pushCloud(){
+  if(!cloud) return Promise.resolve(false);
+  setSyn('busy');
+  state._t=new Date().toISOString();
+  try{ localStorage.setItem(LS,JSON.stringify(state)); }catch(e){}
+  return fetch(sbUrl()+'?on_conflict=id',{
+    method:'POST',
+    headers:sbHead({'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify([{id:'main',data:state,updated_at:state._t}])
+  }).then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    setSyn('ok'); return true;
+  }).catch(function(e){ setSyn('err'); console.warn('云上传失败',e); return false; });
+}
+function pullCloud(){
+  if(!cloud) return Promise.resolve(null);
+  setSyn('busy');
+  return fetch(sbUrl()+'?id=eq.main&select=data,updated_at',{headers:sbHead()})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(rows){ return (rows&&rows[0])?rows[0]:null; })
+    .catch(function(e){ setSyn('err'); console.warn('云读取失败',e); return null; });
+}
+function schedulePush(){
+  if(!cloud) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(function(){ pushCloud(); },900);
+}
+function applyRemote(d){
+  if(!d || !Array.isArray(d.tasks) || !Array.isArray(d.goals)) return false;
+  state=fixState(d);
+  try{ localStorage.setItem(LS,JSON.stringify(state)); }catch(e){}
+  selId=null; openStage=null; openAdd=null; render();
+  return true;
+}
+function bootCloud(){
+  if(!cloud){ setSyn('off'); return; }
+  setSyn('busy');
+  pullCloud().then(function(row){
+    if(!row || !row.data){ pushCloud(); return; }
+    var rt=row.data._t||row.updated_at||'';
+    var lt=state._t||'';
+    if(lt && lt>rt){ pushCloud(); return; }
+    if(applyRemote(row.data)){ setSyn('ok'); toast('已从云端恢复'); }
+    else setSyn('ok');
+  });
+}
+function openCloud(){
+  var c=cloud||{url:'',key:'',table:'ledger'};
+  $('cloudHost').innerHTML=
+  '<div class="mask" data-act="close-cloud"><div class="sheet" data-act="noop">'+
+    '<div class="sheet-t">云同步 · Supabase</div>'+
+    '<div class="sheet-s">把 Supabase 项目的地址和 anon key 填进来，数据存到云端。换手机、清缓存都不会丢。</div>'+
+    '<div class="cloud-f">'+
+      '<label class="f-label" for="cfUrl">项目地址</label>'+
+      '<input class="f-in" id="cfUrl" placeholder="https://xxxx.supabase.co" value="'+esc(c.url||'')+'" autocapitalize="off" autocomplete="off" spellcheck="false">'+
+      '<label class="f-label" for="cfKey">anon public key</label>'+
+      '<input class="f-in" id="cfKey" placeholder="eyJhbGciOiJIUzI1NiIs..." value="'+esc(c.key||'')+'" autocapitalize="off" autocomplete="off" spellcheck="false">'+
+      '<label class="f-label" for="cfTable">表名</label>'+
+      '<input class="f-in" id="cfTable" placeholder="ledger" value="'+esc(c.table||'ledger')+'" autocapitalize="off" spellcheck="false">'+
+    '</div>'+
+    '<button class="btn" style="width:100%;margin-top:16px" data-act="cloud-save">'+(cloud?'重新连接':'连上并同步')+'</button>'+
+    (cloud?'<div class="io"><button class="btn ghost sm" data-act="cloud-push">上传本地</button>'+
+      '<button class="btn ghost sm" data-act="cloud-pull">从云端拉</button></div>'+
+      '<button class="sheet-x" data-act="cloud-off">断开云同步</button>':'')+
+    '<div class="cloud-note">anon key 是公开密钥，只存在你这台设备。真正的保护靠建表时那段 SQL 里的行级权限。</div>'+
+  '</div></div>';
+}
 
 /* ===================== 派生 ===================== */
 function byId(id){ return state.tasks.filter(function(t){ return t.id===id; })[0]; }
@@ -1279,7 +1394,8 @@ document.addEventListener('click',function(e){
       var ngid=uid('g'), fst=uid('s');
       state.goals.push({id:ngid,name:n,due:val('fDue'),reward:val('fReward'),note:'',type:'',
         stages:[{id:fst,name:'阶段 1'}]});
-      openForm=null; openStage=fst; openAdd=null; save(); render(); toast('目标已加上，先往里加几件');
+      openForm=null; openStage=fst; openAdd='pt:'+fst; save(); render(); toast('目标已加上，先往里加几件');
+      var gin=$('ptName'); if(gin) gin.focus();
       break;
     case 'decompose': decompose(); break;
     case 'sel':
@@ -1368,6 +1484,32 @@ document.addEventListener('click',function(e){
       break;
     case 'export': exportData(); break;
     case 'import': $('fileIn').click(); break;
+
+    /* ----- 云同步 ----- */
+    case 'open-cloud': openCloud(); break;
+    case 'close-cloud': $('cloudHost').innerHTML=''; break;
+    case 'cloud-save':
+      var cu=val('cfUrl').replace(/\/+$/,''), ck=val('cfKey'), ct=val('cfTable')||'ledger';
+      if(!cu || !ck){ toast('地址和 Key 都要填'); return; }
+      if(cu.indexOf('http')!==0){ toast('地址要以 https:// 开头'); return; }
+      keepCfg({url:cu,key:ck,table:ct});
+      $('cloudHost').innerHTML='';
+      bootCloud();
+      toast('正在连接…');
+      break;
+    case 'cloud-push':
+      pushCloud().then(function(ok){ toast(ok?'已上传到云端':'上传失败，看控制台'); });
+      break;
+    case 'cloud-pull':
+      pullCloud().then(function(row){
+        if(row && applyRemote(row.data)){ setSyn('ok'); toast('已从云端拉取'); }
+        else toast('云端还没有数据');
+      });
+      break;
+    case 'cloud-off':
+      keepCfg(null); $('cloudHost').innerHTML=''; setSyn('off');
+      toast('已断开，数据还在本地');
+      break;
     case 'save-note': state.note=val('noteInput'); save(); toast('存进下周了'); break;
   }
 });
@@ -1399,6 +1541,10 @@ function rollDate(){
 }
 rollDate();
 render();
+if(navigator.storage && navigator.storage.persist){
+  try{ navigator.storage.persist(); }catch(e){}
+}
+bootCloud();
 window.addEventListener('resize',function(){ if(VIEW==='decompose') render(); });
 
 })();
