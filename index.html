@@ -306,7 +306,11 @@ textarea.f-in{min-height:96px;resize:vertical;}
   padding:16px 15px;margin-bottom:11px;
   background:var(--glass);border:1px solid var(--stroke);border-radius:var(--r);
 }
-.g-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.g-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.g-head .g-name{flex:1;min-width:0;}
+.g-mv{flex:0 0 auto;width:28px;height:28px;border:1px solid var(--stroke);border-radius:8px;color:var(--muted);font-size:13px;line-height:1;background:var(--glass);}
+.g-mv:active{color:var(--cyan);border-color:rgba(34,211,238,.4);}
+.g-mv[disabled]{opacity:.25;pointer-events:none;}
 .g-name{font-size:16.5px;font-weight:700;line-height:1.45;}
 .g-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:7px;font-family:var(--mono);font-size:10.5px;color:var(--dim);}
 .g-meta .rw{font-family:var(--sans);font-size:12px;color:var(--cyan);}
@@ -669,7 +673,7 @@ function val(id){ var e=$(id); return e ? e.value.trim() : ''; }
 /* ===================== 状态 ===================== */
 function blank(){
   return { today:TODAY, points:0, checks:[], weekLog:{}, note:'', goals:[], tasks:[],
-    lastRun:null, history:[], journal:[], startedAt:TODAY };
+    lastRun:null, history:[], journal:[], startedAt:TODAY, goalSort:'manual' };
 }
 function fixState(s){
   if(!s || typeof s!=='object') return null;
@@ -684,6 +688,7 @@ function fixState(s){
   s.history = Array.isArray(s.history) ? s.history : [];
   s.journal = Array.isArray(s.journal) ? s.journal : [];
   s.startedAt = s.startedAt || (s.checks.slice().sort()[0]) || TODAY;
+  s.goalSort = s.goalSort==='due' ? 'due' : 'manual';
   s.goals.forEach(function(g){
     g.type = g.type || '';
     g.stages = Array.isArray(g.stages) ? g.stages : [];
@@ -736,6 +741,7 @@ function load(){
 }
 var state=load();
 function save(){
+  state._t=new Date().toISOString();
   try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){}
   schedulePush();
 }
@@ -1293,7 +1299,17 @@ function stageBlock(g,st){
 }
 
 function renderGoals(){
-  var cards=state.goals.map(function(g){
+  var ordered=state.goals.slice();
+  if(state.goalSort==='due'){
+    ordered.sort(function(a,b){
+      var sa=gStats(a), sb=gStats(b);
+      var ca=(sa.n>0&&sa.n===sa.d)?1:0, cb=(sb.n>0&&sb.n===sb.d)?1:0;
+      if(ca!==cb) return ca-cb;
+      var da=a.due||'9999-12-31', db=b.due||'9999-12-31';
+      return da<db?-1:(da>db?1:0);
+    });
+  }
+  var cards=ordered.map(function(g,gi){
     var tot=gStats(g);
     var complete=tot.n>0 && tot.d===tot.n;
     var dl=daysLeft(g.due);
@@ -1319,6 +1335,10 @@ function renderGoals(){
           '<button class="st-ok" data-act="save-goal-name" data-id="'+g.id+'">存</button></div>'+
           '<button class="sheet-x" style="min-height:30px;margin:0 0 6px" data-act="cancel-goal-rename">取消改名</button>'
         : '<div class="g-head"><h3 class="g-name">'+esc(g.name)+'</h3>' +
+          (state.goalSort!=='due' && state.goals.length>1
+            ? '<button class="g-mv" data-act="goal-up" data-id="'+g.id+'"'+(gi===0?' disabled':'')+' aria-label="上移">↑</button>'+
+              '<button class="g-mv" data-act="goal-down" data-id="'+g.id+'"'+(gi===ordered.length-1?' disabled':'')+' aria-label="下移">↓</button>'
+            : '') +
           '<button class="st-rename" style="position:static" data-act="rename-goal" data-id="'+g.id+'">改名</button>' +
           '<button class="x'+(pendingDel==='g:'+g.id?' armed':'')+'" data-act="del-goal" data-id="'+g.id+'" aria-label="删除目标">×</button></div>') +
       (meta?'<div class="g-meta">'+meta+'</div>':'') +
@@ -1334,6 +1354,11 @@ function renderGoals(){
   return '<div class="vhead"><div class="eyebrow">GOALS</div><h1>目标</h1>' +
       '<p class="vlead">一个目标分几个阶段，每个阶段放几件做得完的事。勾一件，进度就往前走一格。</p></div>' +
     (openForm==='goal'?goalForm():'<button class="btn ghost" style="width:100%;margin-bottom:12px" data-act="open-goal-form">＋ 新建目标</button>') +
+    (state.goals.length>1
+      ? '<div class="range-tabs" style="margin-bottom:4px"><button class="'+(state.goalSort!=='due'?'on':'')+'" data-act="goal-sort" data-mode="manual">手动排序</button>'+
+        '<button class="'+(state.goalSort==='due'?'on':'')+'" data-act="goal-sort" data-mode="due">按截止时间</button></div>'+
+        '<p class="hint" style="margin:4px 2px 10px">'+(state.goalSort==='due'?'按截止时间从近到远自动排，已达成的沉底，没填时间的排最后。':'用 ↑↓ 调整顺序，最上面的放最前面。')+'</p>'
+      : '') +
     (state.goals.length?cards:(openForm==='goal'?'':emptyBox('','还没有目标','先写一个你想走到的地方，再把它分成几个阶段。一次别超过三个。',''))) +
     '<p class="hint">没安排日期的任务，勾了只推进度。安排到日程后完成才计分；延期不扣分。</p>';
 }
@@ -1601,6 +1626,20 @@ document.addEventListener('click',function(e){
       }
       state.history.forEach(function(h){ if(h.taskId===id) h.title=etitle; });
       save(); closeModal(); render(); toast('已保存修改，进度和积分没变');
+      break;
+    case 'goal-sort':
+      state.goalSort=el.getAttribute('data-mode')==='due'?'due':'manual';
+      save(); render();
+      toast(state.goalSort==='due'?'按截止时间自动排序':'手动排序，用 ↑↓ 调整');
+      break;
+    case 'goal-up':
+    case 'goal-down':
+      var gi=state.goals.findIndex(function(x){ return x.id===id; });
+      var gj=act==='goal-up'?gi-1:gi+1;
+      if(gi>=0&&gj>=0&&gj<state.goals.length){
+        var tmp=state.goals[gi]; state.goals[gi]=state.goals[gj]; state.goals[gj]=tmp;
+        save(); render();
+      }
       break;
     case 'rename-goal':
       openAdd='gname:'+id; pendingDel=null; render();
